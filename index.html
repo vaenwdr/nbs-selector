@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBS策略选择器</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="mt-4 mb-4">
+            <h1 class="text-center">城市绿色空间NBS策略选择器</h1>
+            <p class="text-center text-muted">根据单元特征智能推荐适合的自然解决方案(NBS)</p>
+        </header>
+
+        <div class="row">
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="card-title">单元特征输入</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="nbs-form">
+                            <!-- 风险类型 -->
+                            <div class="mb-3">
+                                <h5>风险类型</h5>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="heat-island" checked>
+                                    <label class="form-check-label" for="heat-island">热岛风险</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="flooding" checked>
+                                    <label class="form-check-label" for="flooding">雨洪风险</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="pollution" checked>
+                                    <label class="form-check-label" for="pollution">污染风险</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="recreation" checked>
+                                    <label class="form-check-label" for="recreation">游憩不足</label>
+                                </div>
+                            </div>
+
+                            <!-- 风险等级 -->
+                            <div class="mb-3">
+                                <h5>风险等级</h5>
+                                <select class="form-select" id="risk-level">
+                                    <option value="high" selected>高风险</option>
+                                    <option value="medium">中风险</option>
+                                    <option value="low">低风险</option>
+                                </select>
+                            </div>
+
+                            <!-- 结构优化需求 -->
+                            <div class="mb-3">
+                                <h5>结构优化需求</h5>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="structure-opt" checked>
+                                    <label class="form-check-label" for="structure-opt">需要结构优化</label>
+                                </div>
+                            </div>
+
+                            <!-- 区位特征 -->
+                            <div class="mb-3">
+                                <h5>区位特征</h5>
+                                <select class="form-select" id="location">
+                                    <option value="inner" selected>内环区</option>
+                                    <option value="middle">中环区</option>
+                                    <option value="outer">外环区</option>
+                                </select>
+                            </div>
+
+                            <!-- 建设密度 -->
+                            <div class="mb-3">
+                                <h5>建设密度</h5>
+                                <select class="form-select" id="density">
+                                    <option value="high" selected>高密度</option>
+                                    <option value="medium">中密度</option>
+                                    <option value="low">低密度</option>
+                                </select>
+                            </div>
+
+                            <!-- 用地类型 -->
+                            <div class="mb-3">
+                                <h5>主要用地类型 (可多选)</h5>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="residential">
+                                    <label class="form-check-label" for="residential">居住用地</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="commercial">
+                                    <label class="form-check-label" for="commercial">商业用地</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="road" checked>
+                                    <label class="form-check-label" for="road">道路用地</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="park">
+                                    <label class="form-check-label" for="park">公园绿地</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="agriculture">
+                                    <label class="form-check-label" for="agriculture">农业用地</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="waterfront">
+                                    <label class="form-check-label" for="waterfront">滨水区域</label>
+                                </div>
+                            </div>
+
+                            <button type="button" id="calculate-btn" class="btn btn-primary w-100">生成推荐方案</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-7">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="card-title">推荐NBS策略</h3>
+                    </div>
+                    <div class="card-body" id="results-container">
+                        <div class="alert alert-info">
+                            请填写单元特征并点击"生成推荐方案"按钮
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="card-title">使用说明</h3>
+                    </div>
+                    <div class="card-body">
+                        <ol>
+                            <li>在左侧输入区域填写单元特征信息</li>
+                            <li>选择相应的风险类型、风险等级、区位特征等内容</li>
+                            <li>点击"生成推荐方案"按钮获取推荐</li>
+                            <li>推荐结果按照适合度从高到低排序</li>
+                            <li>点击每个方案可查看详细信息和应用案例</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 结果卡片模板 -->
+    <template id="result-card-template">
+        <div class="card mb-3 result-card">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="" class="img-fluid rounded-start nbs-image" alt="NBS策略图片">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 class="card-title nbs-name"></h5>
+                        <div class="d-flex justify-content-between">
+                            <span class="badge score-badge"></span>
+                            <span class="badge priority-badge"></span>
+                        </div>
+                        <p class="card-text nbs-function mt-2"></p>
+                        <p class="card-text"><small class="text-muted nbs-scenario"></small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script src="js/nbs-data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
