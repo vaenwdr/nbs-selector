@@ -4,8 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NBS策略选择器</title>
-    <link rel="stylesheet" href="css/style.css">
+    <!-- 使用CDN加载Bootstrap样式 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 内联CSS样式，避免文件加载问题 -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            border-radius: 8px 8px 0 0 !important;
+        }
+
+        .result-card {
+            transition: transform 0.2s;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .nbs-image {
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px 0 0 8px;
+        }
+
+        .score-badge, .priority-badge {
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .nbs-image {
+                border-radius: 8px 8px 0 0;
+                max-height: 200px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -151,29 +198,478 @@
         </div>
     </div>
 
-    <!-- 结果卡片模板 -->
-    <template id="result-card-template">
-        <div class="card mb-3 result-card">
-            <div class="row g-0">
-                <div class="col-md-4">
-                    <img src="" class="img-fluid rounded-start nbs-image" alt="NBS策略图片">
-                </div>
-                <div class="col-md-8">
-                    <div class="card-body">
-                        <h5 class="card-title nbs-name"></h5>
-                        <div class="d-flex justify-content-between">
-                            <span class="badge score-badge"></span>
-                            <span class="badge priority-badge"></span>
-                        </div>
-                        <p class="card-text nbs-function mt-2"></p>
-                        <p class="card-text"><small class="text-muted nbs-scenario"></small></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </template>
+    <!-- 内联数据部分 -->
+    <script>
+        // NBS数据库
+        const nbsData = [
+            {
+                id: 1,
+                name: "非机动车与人行的绿道",
+                heatIsland: 4,
+                flooding: 2,
+                pollution: 2,
+                recreation: 5,
+                structure: 3,
+                highDensity: 4,
+                mediumDensity: 5,
+                lowDensity: 3,
+                innerLocation: 3,
+                middleLocation: 5,
+                outerLocation: 5,
+                residential: 3,
+                commercial: 3,
+                road: 5,
+                park: 5,
+                agriculture: 2,
+                waterfront: 3,
+                difficulty: 3,
+                function: "提供生态友好型交通方式，改善城市微气候",
+                scenario: "道路系统、公园内部路径",
+                image: "https://images.unsplash.com/photo-1581056771107-24695562a27a?q=80&w=600"
+            },
+            {
+                id: 2,
+                name: "城市树木",
+                heatIsland: 5,
+                flooding: 2,
+                pollution: 5,
+                recreation: 3,
+                structure: 3,
+                highDensity: 5,
+                mediumDensity: 5,
+                lowDensity: 4,
+                innerLocation: 5,
+                middleLocation: 5,
+                outerLocation: 5,
+                residential: 5,
+                commercial: 4,
+                road: 5,
+                park: 5,
+                agriculture: 3,
+                waterfront: 3,
+                difficulty: 2,
+                function: "改善空气质量，降低温度，增加遮荫",
+                scenario: "街道、广场、居住区",
+                image: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?q=80&w=600"
+            },
+            {
+                id: 7,
+                name: "雨水花园",
+                heatIsland: 3,
+                flooding: 5,
+                pollution: 3,
+                recreation: 4,
+                structure: 2,
+                highDensity: 4,
+                mediumDensity: 5,
+                lowDensity: 5,
+                innerLocation: 4,
+                middleLocation: 5,
+                outerLocation: 3,
+                residential: 5,
+                commercial: 4,
+                road: 3,
+                park: 5,
+                agriculture: 3,
+                waterfront: 4,
+                difficulty: 3,
+                function: "集雨、渗透、净化雨水，减轻内涝",
+                scenario: "住宅区、公园、学校",
+                image: "https://images.unsplash.com/photo-1558293842-c0fd3db86157?q=80&w=600"
+            },
+            {
+                id: 20,
+                name: "透水铺装",
+                heatIsland: 3,
+                flooding: 5,
+                pollution: 2,
+                recreation: 2,
+                structure: 2,
+                highDensity: 5,
+                mediumDensity: 5,
+                lowDensity: 5,
+                innerLocation: 5,
+                middleLocation: 5,
+                outerLocation: 4,
+                residential: 4,
+                commercial: 5,
+                road: 5,
+                park: 4,
+                agriculture: 3,
+                waterfront: 3,
+                difficulty: 2,
+                function: "增加雨水渗透，减少径流，缓解热岛",
+                scenario: "停车场、人行道、广场",
+                image: "https://images.unsplash.com/photo-1612630741022-b29ec8f5be74?q=80&w=600"
+            },
+            {
+                id: 22,
+                name: "口袋公园",
+                heatIsland: 4,
+                flooding: 3,
+                pollution: 3,
+                recreation: 5,
+                structure: 2,
+                highDensity: 5,
+                mediumDensity: 4,
+                lowDensity: 2,
+                innerLocation: 5,
+                middleLocation: 4,
+                outerLocation: 2,
+                residential: 5,
+                commercial: 4,
+                road: 3,
+                park: 4,
+                agriculture: 2,
+                waterfront: 2,
+                difficulty: 2,
+                function: "提供小型休闲空间，改善微气候",
+                scenario: "社区内部、商业区、办公区",
+                image: "https://images.unsplash.com/photo-1567564967902-f25f4e621ebe?q=80&w=600"
+            },
+            {
+                id: 27,
+                name: "绿墙和垂直花园",
+                heatIsland: 5,
+                flooding: 2,
+                pollution: 4,
+                recreation: 3,
+                structure: 2,
+                highDensity: 5,
+                mediumDensity: 4,
+                lowDensity: 2,
+                innerLocation: 5,
+                middleLocation: 4,
+                outerLocation: 2,
+                residential: 4,
+                commercial: 5,
+                road: 3,
+                park: 3,
+                agriculture: 1,
+                waterfront: 1,
+                difficulty: 4,
+                function: "增加垂直绿化，改善建筑热环境",
+                scenario: "高层建筑外墙、围墙",
+                image: "https://images.unsplash.com/photo-1518012312832-96aea3c91144?q=80&w=600"
+            },
+            {
+                id: 41,
+                name: "微型雨水花园",
+                heatIsland: 3,
+                flooding: 5,
+                pollution: 2,
+                recreation: 3,
+                structure: 2,
+                highDensity: 5,
+                mediumDensity: 4,
+                lowDensity: 3,
+                innerLocation: 5,
+                middleLocation: 4,
+                outerLocation: 2,
+                residential: 5,
+                commercial: 4,
+                road: 3,
+                park: 4,
+                agriculture: 2,
+                waterfront: 2,
+                difficulty: 2,
+                function: "小型雨水管理设施，净化径流，减少内涝",
+                scenario: "小区内部、道路边缘",
+                image: "https://images.unsplash.com/photo-1525498128493-380d1990a112?q=80&w=600"
+            },
+            {
+                id: 8,
+                name: "雨水收集系统",
+                heatIsland: 2,
+                flooding: 5,
+                pollution: 1,
+                recreation: 3,
+                structure: 1,
+                highDensity: 5,
+                mediumDensity: 5,
+                lowDensity: 4,
+                innerLocation: 5,
+                middleLocation: 5,
+                outerLocation: 4,
+                residential: 5,
+                commercial: 5,
+                road: 4,
+                park: 4,
+                agriculture: 3,
+                waterfront: 3,
+                difficulty: 4,
+                function: "收集雨水用于灌溉等非饮用用途",
+                scenario: "建筑屋顶、小区",
+                image: "https://images.unsplash.com/photo-1613977257363-707ba9348227?q=80&w=600"
+            },
+            {
+                id: 34,
+                name: "雨水广场",
+                heatIsland: 3,
+                flooding: 5,
+                pollution: 2,
+                recreation: 4,
+                structure: 2,
+                highDensity: 5,
+                mediumDensity: 5,
+                lowDensity: 3,
+                innerLocation: 5,
+                middleLocation: 5,
+                outerLocation: 3,
+                residential: 4,
+                commercial: 5,
+                road: 3,
+                park: 5,
+                agriculture: 2,
+                waterfront: 3,
+                difficulty: 4,
+                function: "暴雨时临时积水，平时作为公共空间",
+                scenario: "城市广场、低洼区",
+                image: "https://images.unsplash.com/photo-1614551103834-633151b91dae?q=80&w=600"
+            },
+            {
+                id: 24,
+                name: "蓝绿屋顶",
+                heatIsland: 5,
+                flooding: 5,
+                pollution: 3,
+                recreation: 3,
+                structure: 2,
+                highDensity: 5,
+                mediumDensity: 4,
+                lowDensity: 2,
+                innerLocation: 5,
+                middleLocation: 4,
+                outerLocation: 2,
+                residential: 4,
+                commercial: 5,
+                road: 3,
+                park: 3,
+                agriculture: 1,
+                waterfront: 1,
+                difficulty: 4,
+                function: "屋顶绿化与雨水收集结合，多重生态效益",
+                scenario: "平屋顶建筑",
+                image: "https://images.unsplash.com/photo-1591128213906-7d394ac9632d?q=80&w=600"
+            }
+        ];
+    </script>
 
-    <script src="js/nbs-data.js"></script>
-    <script src="js/app.js"></script>
+    <!-- 内联应用逻辑 -->
+    <script>
+        console.log('App loading...');
+        
+        // 等待DOM完全加载
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM fully loaded');
+            
+            // 获取DOM元素
+            const calculateBtn = document.getElementById('calculate-btn');
+            const resultsContainer = document.getElementById('results-container');
+            
+            // 检查元素是否存在
+            if (!calculateBtn) {
+                console.error('Calculate button not found!');
+                alert('页面加载错误：未找到计算按钮');
+                return;
+            }
+            
+            if (!resultsContainer) {
+                console.error('Results container not found!');
+                alert('页面加载错误：未找到结果容器');
+                return;
+            }
+            
+            console.log('Button and results container found');
+            
+            // 添加点击事件处理程序
+            calculateBtn.addEventListener('click', function() {
+                console.log('Button clicked');
+                
+                // 获取用户输入
+                const inputs = {
+                    // 风险类型
+                    heatIsland: document.getElementById('heat-island').checked,
+                    flooding: document.getElementById('flooding').checked,
+                    pollution: document.getElementById('pollution').checked,
+                    recreation: document.getElementById('recreation').checked,
+                    
+                    // 风险等级
+                    riskLevel: document.getElementById('risk-level').value,
+                    
+                    // 结构优化需求
+                    structureOpt: document.getElementById('structure-opt').checked,
+                    
+                    // 区位特征
+                    location: document.getElementById('location').value,
+                    
+                    // 建设密度
+                    density: document.getElementById('density').value,
+                    
+                    // 用地类型
+                    residential: document.getElementById('residential').checked,
+                    commercial: document.getElementById('commercial').checked,
+                    road: document.getElementById('road').checked,
+                    park: document.getElementById('park').checked,
+                    agriculture: document.getElementById('agriculture').checked,
+                    waterfront: document.getElementById('waterfront').checked
+                };
+                
+                // 计算每个NBS的得分
+                const results = calculateScores(inputs);
+                
+                // 显示结果
+                displayResults(results);
+            });
+            
+            // 计算NBS得分
+            function calculateScores(inputs) {
+                // 权重设置
+                const weights = {
+                    heatIsland: 0.3,
+                    flooding: 0.3,
+                    pollution: 0.2,
+                    recreation: 0.2,
+                    structure: 0.5,
+                    highRisk: 1.2,
+                    mediumRisk: 1.0,
+                    lowRisk: 0.8
+                };
+                
+                // 风险等级调整因子
+                let riskFactor;
+                switch(inputs.riskLevel) {
+                    case 'high': riskFactor = weights.highRisk; break;
+                    case 'medium': riskFactor = weights.mediumRisk; break;
+                    case 'low': riskFactor = weights.lowRisk; break;
+                }
+                
+                // 单一风险加权
+                const riskCount = [inputs.heatIsland, inputs.flooding, inputs.pollution, inputs.recreation].filter(Boolean).length;
+                const singleRiskBonus = (riskCount === 1) ? 0.5 : 0;
+                
+                // 计算每个NBS的得分
+                let scores = nbsData.map(nbs => {
+                    // 风险得分
+                    let riskScore = 0;
+                    if (inputs.heatIsland) riskScore += nbs.heatIsland * weights.heatIsland;
+                    if (inputs.flooding) riskScore += nbs.flooding * weights.flooding;
+                    if (inputs.pollution) riskScore += nbs.pollution * weights.pollution;
+                    if (inputs.recreation) riskScore += nbs.recreation * weights.recreation;
+                    
+                    // 应用风险等级和单一风险加权
+                    riskScore = riskScore * riskFactor * (1 + singleRiskBonus);
+                    
+                    // 结构优化得分
+                    const structureScore = inputs.structureOpt ? nbs.structure * weights.structure : 0;
+                    
+                    // 空间适应性得分
+                    let locationScore = 0;
+                    switch(inputs.location) {
+                        case 'inner': locationScore = nbs.innerLocation; break;
+                        case 'middle': locationScore = nbs.middleLocation; break;
+                        case 'outer': locationScore = nbs.outerLocation; break;
+                    }
+                    
+                    let densityScore = 0;
+                    switch(inputs.density) {
+                        case 'high': densityScore = nbs.highDensity; break;
+                        case 'medium': densityScore = nbs.mediumDensity; break;
+                        case 'low': densityScore = nbs.lowDensity; break;
+                    }
+                    
+                    const spaceScore = (locationScore * 0.5 + densityScore * 0.5);
+                    
+                    // 用地类型适应性得分
+                    let landScore = 0;
+                    let landCount = 0;
+                    
+                    if (inputs.residential) { landScore += nbs.residential; landCount++; }
+                    if (inputs.commercial) { landScore += nbs.commercial; landCount++; }
+                    if (inputs.road) { landScore += nbs.road; landCount++; }
+                    if (inputs.park) { landScore += nbs.park; landCount++; }
+                    if (inputs.agriculture) { landScore += nbs.agriculture; landCount++; }
+                    if (inputs.waterfront) { landScore += nbs.waterfront; landCount++; }
+                    
+                    landScore = landCount > 0 ? landScore / landCount : 0;
+                    
+                    // 总得分
+                    const totalScore = riskScore + structureScore + spaceScore + landScore - nbs.difficulty / 2;
+                    
+                    // 确定优先级
+                    let priority;
+                    if (totalScore >= 7) priority = "高";
+                    else if (totalScore >= 4) priority = "中";
+                    else priority = "低";
+                    
+                    return {
+                        ...nbs,
+                        score: totalScore,
+                        priority: priority
+                    };
+                });
+                
+                // 按得分降序排序
+                scores.sort((a, b) => b.score - a.score);
+                
+                // 去除重复项
+                const uniqueResults = [];
+                const seenNames = new Set();
+                
+                for (const result of scores) {
+                    if (!seenNames.has(result.name)) {
+                        seenNames.add(result.name);
+                        uniqueResults.push(result);
+                        if (uniqueResults.length >= 10) break; // 最多显示10个结果
+                    }
+                }
+                
+                return uniqueResults;
+            }
+            
+            // 显示结果
+            function displayResults(results) {
+                // 清空结果容器
+                resultsContainer.innerHTML = '';
+                
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = '<div class="alert alert-warning">未找到匹配的NBS策略</div>';
+                    return;
+                }
+                
+                // 添加结果卡片
+                results.forEach((result, index) => {
+                    // 创建结果卡片HTML
+                    const resultHtml = `
+                        <div class="card mb-3 result-card">
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <img src="${result.image || 'https://via.placeholder.com/300x200?text=NBS'}" class="img-fluid rounded-start nbs-image" alt="${result.name}" onerror="this.src='https://via.placeholder.com/300x200?text=NBS'">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${index + 1}. ${result.name}</h5>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="badge ${result.score >= 7 ? 'bg-success' : (result.score >= 4 ? 'bg-warning' : 'bg-danger')}">得分: ${result.score.toFixed(2)}</span>
+                                            <span class="badge ${result.priority === "高" ? 'bg-success' : (result.priority === "中" ? 'bg-warning' : 'bg-danger')}">${result.priority}优先级</span>
+                                        </div>
+                                        <p class="card-text mt-2">${result.function}</p>
+                                        <p class="card-text"><small class="text-muted">适用场景: ${result.scenario}</small></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 添加到结果容器
+                    resultsContainer.innerHTML += resultHtml;
+                });
+            }
+            
+            console.log('Event listener added');
+        });
+        
+        console.log('App setup completed');
+    </script>
 </body>
 </html>
